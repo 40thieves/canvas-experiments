@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+	<head>
+		<title></title>
+		<meta name="description" content="" />
+		<meta name="author" content="Alasdair Smith" />
+		<link rel="Shortcut Icon" type="image/ico" href="" />
+
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+	</head>
+
+	<body>
+
+		<canvas id="canvas" width="800" height="200"></canvas>
+
+		<script type="text/javascript">
+			window.requestAnimFrame = (function(callback) {
+				return window.requestAnimationFrame || 
+				window.webkitRequestAnimationFrame || 
+				window.mozRequestAnimationFrame || 
+				window.oRequestAnimationFrame || 
+				window.msRequestAnimationFrame ||
+				function(callback) {
+					window.setTimeout(callback, 1000 / 60);
+				};
+			})();
+
+			function animate(lastTime, line) {
+				var canvas = document.getElementById('canvas');
+				var context = canvas.getContext('2d');
+
+				var date = new Date();
+				var time = date.getTime();
+				var timeDiff = time - lastTime;
+				var linearSpeed = 400;
+
+				// Calculate pixels/second
+				var linearDistEachFrame = linearSpeed * timeDiff / 1000;
+				var currentEndPointX = line.endPointX;
+				var currentEndPointY = line.endPointY;
+
+				// Move the second point until it reaches the edge
+				var newEndPointX = currentEndPointX + linearDistEachFrame;
+				var newEndPointY = currentEndPointY + linearDistEachFrame;
+				line.endPointX = newEndPointX;
+				line.endPointY = newEndPointY;
+
+				lastTime = time;
+
+				// Clear the canvas
+				context.clearRect(0, 0, canvas.width, canvas.height);
+
+				// Draw the line
+				context.beginPath();
+				context.moveTo(line.startPointX, line.startPointY);
+				context.lineTo(line.endPointX, line.endPointY);
+				context.lineWidth = line.lineWidth;
+				context.stroke();
+				context.strokeStyle = line.colour;
+
+				// Request new frame, if line has not moved out of the canvas
+				if (line.endPointX < canvas.width || line.endPointY < canvas.height) {
+					requestAnimFrame(function() {
+						animate(lastTime, line);
+					});
+				}
+			}
+
+			window.onload = function() {
+				var myLine = {
+					startPointX: 0,
+					startPointY: 0,
+					endPointX: 0,
+					endPointY:  0,
+					lineWidth: 25,
+					colour: '#8ED6FF'
+				};
+
+				var date = new Date();
+				var time = date.getTime();
+				animate(time, myLine);
+			};
+		</script>
+
+	</body>
+
+</html>
